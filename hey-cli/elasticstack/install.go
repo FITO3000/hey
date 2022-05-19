@@ -19,6 +19,12 @@ var (
 		appFolder: "kibana-8.2.0",
 		imageUrl:  "https://artifacts.elastic.co/downloads/kibana/kibana-8.2.0-windows-x86_64.zip",
 	}
+
+	elasticagent = &app{
+		name:      "elastic-agent",
+		appFolder: "elastic-agent-8.2.0-windows-x86_64",
+		imageUrl:  "https://artifacts.elastic.co/downloads/beats/elastic-agent/elastic-agent-8.2.0-windows-x86_64.zip",
+	}
 )
 
 type Installer struct {
@@ -31,13 +37,12 @@ func (i *Installer) InstallAll() error {
 		return err
 	}
 	if err := i.InstallKibana(); err != nil {
-		fmt.Println("elasticstack version 8.2.0 not fully installed")
 		return err
-	} else {
-		fmt.Println("elasticstack version 8.2.0 installed")
-		return nil
 	}
-
+	if err := i.InstallElasticAgent(); err != nil {
+		return err
+	}
+	return nil
 }
 
 func (i *Installer) InstallElasticsearch() error {
@@ -53,6 +58,13 @@ func (i *Installer) InstallKibana() error {
 		return err
 	}
 	return kibana.unzip(i)
+}
+
+func (i *Installer) InstallElasticAgent() error {
+	if err := elasticagent.download(i); err != nil {
+		return err
+	}
+	return elasticagent.unzip(i)
 }
 
 func (i *Installer) getDownloadPath() string {
