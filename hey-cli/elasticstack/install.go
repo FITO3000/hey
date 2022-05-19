@@ -1,6 +1,7 @@
 package elasticstack
 
 import (
+	"fmt"
 	"path"
 
 	"f3s.tech/hey-utils/fileutil"
@@ -8,13 +9,15 @@ import (
 
 var (
 	elasticsearch = &app{
-		name:     "elasticsearch",
-		imageUrl: "https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-8.2.0-windows-x86_64.zip",
+		name:      "elasticsearch",
+		appFolder: "elasticsearch-8.2.0",
+		imageUrl:  "https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-8.2.0-windows-x86_64.zip",
 	}
 
 	kibana = &app{
-		name:     "kibana",
-		imageUrl: "https://artifacts.elastic.co/downloads/kibana/kibana-8.2.0-windows-x86_64.zip",
+		name:      "kibana",
+		appFolder: "kibana-8.2.0",
+		imageUrl:  "https://artifacts.elastic.co/downloads/kibana/kibana-8.2.0-windows-x86_64.zip",
 	}
 )
 
@@ -23,10 +26,17 @@ type Installer struct {
 }
 
 func (i *Installer) InstallAll() error {
+	fmt.Println("installing elasticstack version 8.2.0 ...")
 	if err := i.InstallElasticsearch(); err != nil {
 		return err
 	}
-	return i.InstallKibana()
+	if err := i.InstallKibana(); err != nil {
+		fmt.Println("elasticstack version 8.2.0 not fully installed")
+		return err
+	} else {
+		fmt.Println("elasticstack version 8.2.0 installed")
+		return nil
+	}
 
 }
 
@@ -54,23 +64,31 @@ func (i *Installer) getAppsPath() string {
 }
 
 type app struct {
-	name     string
-	imageUrl string
+	name      string
+	appFolder string
+	imageUrl  string
 }
 
 func (a *app) download(installer *Installer) error {
 
 	if !fileutil.Exists(a.getDownloadImagePath(installer)) {
+		fmt.Println("downloding: ", a.name)
 		return fileutil.Download(a.imageUrl, installer.getDownloadPath())
 	}
 	return nil
 }
 
 func (a *app) unzip(installer *Installer) error {
-	if fileutil.Exists(a.getDownloadImagePath(installer)) {
-		fileutil.Unzip(a.getDownloadImagePath(installer), installer.getAppsPath())
+	if !fileutil.Exists(a.getAppFolder(installer)) {
+		if fileutil.Exists(a.getDownloadImagePath(installer)) {
+			fileutil.Unzip(a.getDownloadImagePath(installer), installer.getAppsPath())
+		}
 	}
 	return nil
+}
+
+func (a *app) getAppFolder(installer *Installer) string {
+	return path.Join(installer.getAppsPath(), a.appFolder)
 }
 
 func (a *app) getDownloadImagePath(installer *Installer) string {
