@@ -21,9 +21,7 @@ func toggleDebug(cmd *cobra.Command, args []string) {
 		log.SetLevel(log.DebugLevel)
 		log.SetFormatter(&log.TextFormatter{})
 	} else {
-		log.SetFormatter(&log.TextFormatter{
-			FullTimestamp:   true,
-			TimestampFormat: "15:04:05.999",
-		})
+		plainFormatter := new(PlainFormatter)
+		log.SetFormatter(plainFormatter)
 	}
 }
