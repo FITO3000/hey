@@ -7,6 +7,7 @@ package cmd
 import (
 	"fmt"
 	"os"
+	"time"
 
 	"f3s.tech/hey-cli/elasticstack"
 	"f3s.tech/hey-utils/fileutil"
@@ -38,10 +39,11 @@ to quickly create a Cobra application.`,
 		}
 
 		if fileutil.Exists(installer.InstallFolder) {
-			log.Info("hallo!")
+			startedAt := time.Now()
 			if err := installer.InstallAll(); err != nil {
 				panic(err)
 			}
+			log.Info("duration: ", time.Since(startedAt))
 		} else {
 			panic(fmt.Errorf("installation-folder: %s does not exist", installer.InstallFolder))
 		}
