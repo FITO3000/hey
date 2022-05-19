@@ -10,6 +10,7 @@ import (
 
 	"f3s.tech/hey-cli/elasticstack"
 	"f3s.tech/hey-utils/fileutil"
+	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 )
 
@@ -23,6 +24,7 @@ and usage of using your command. For example:
 Cobra is a CLI library for Go that empowers applications.
 This application is a tool to generate the needed files
 to quickly create a Cobra application.`,
+	PreRun: toggleDebug,
 	Run: func(cmd *cobra.Command, args []string) {
 		installer := &elasticstack.Installer{}
 
@@ -36,6 +38,7 @@ to quickly create a Cobra application.`,
 		}
 
 		if fileutil.Exists(installer.InstallFolder) {
+			log.Info("hallo!")
 			if err := installer.InstallAll(); err != nil {
 				panic(err)
 			}
